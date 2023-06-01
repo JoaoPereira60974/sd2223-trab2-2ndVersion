@@ -75,6 +75,7 @@ public class JavaUsers implements Users {
 
 	@Override
 	public Result<User> deleteUser(String name, String pwd) {
+		System.out.println("oi estou no delete user");
 		if (badParams(name, pwd))
 			return error(BAD_REQUEST);
 		
