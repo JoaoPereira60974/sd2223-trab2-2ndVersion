@@ -87,10 +87,6 @@ public class JavaUsers implements Users {
 			return error(FORBIDDEN);
 		else {
 			users.remove(name);
-			var cona = users.get(name);
-			if(cona == null)
-				System.out.println("nao ha cona: "+name);
-			System.out.println("eliminatings o feed do user eliminado");
 			FeedsClients.get( Domain.get()).deleteUserFeed(name + "@" + Domain.get()); // synchronous op to avoid 7c and 11c SUSPECT...
 			executor.execute(()->{
 //				FeedsClients.get( Domain.get()).deleteUserFeed(name + "@" + Domain.get()); // asynchronous op is preferable, but produces 7c and 11c SUSPECT...
