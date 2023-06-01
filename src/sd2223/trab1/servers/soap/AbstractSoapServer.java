@@ -13,7 +13,7 @@ public class AbstractSoapServer<T> extends AbstractServer {
 	final T webservice;
 	
 	protected AbstractSoapServer( boolean enableSoapDebug, Logger log, String service, int port, T webservice) {
-		super(log, service, String.format(SERVER_BASE_URI, IP.hostAddress(), port, SOAP_CTX));
+		super(log, service, String.format(SERVER_BASE_URI, IP.hostName(), port, SOAP_CTX));
 		this.webservice = webservice;
 		
 		if(enableSoapDebug ) {
@@ -25,7 +25,7 @@ public class AbstractSoapServer<T> extends AbstractServer {
 	}
 	
 	protected void start() {
-		Endpoint.publish(serverURI.replace(IP.hostAddress(), INETADDR_ANY), webservice );
+		Endpoint.publish(serverURI.replace(IP.hostName(), INETADDR_ANY), webservice );
 
 		Discovery.getInstance().announce(service, serverURI);
 		Log.info(String.format("%s Soap Server ready @ %s\n", service, serverURI));

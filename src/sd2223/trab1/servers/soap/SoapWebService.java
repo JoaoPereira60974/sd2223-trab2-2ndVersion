@@ -1,8 +1,8 @@
 package sd2223.trab1.servers.soap;
 
 import java.util.function.Function;
-
 import sd2223.trab1.api.java.Result;
+import sd2223.trab1.api.java.Result.ErrorCode;
 
 public abstract class SoapWebService<E extends Throwable> {
 	
