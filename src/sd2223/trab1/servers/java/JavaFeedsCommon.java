@@ -129,7 +129,6 @@ public abstract class JavaFeedsCommon<T extends Feeds>  implements Feeds {
 	
 	@Override
 	public Result<Void> deleteUserFeed(String user) {
-		System.out.println("estou a eliminar o feed no server dos feeds");
 		
 		var preconditionsResult = preconditions.deleteUserFeed(user);
 		if( ! preconditionsResult.isOK() )
