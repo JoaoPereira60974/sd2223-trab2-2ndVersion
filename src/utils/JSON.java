@@ -1,9 +1,11 @@
 package utils;
 
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.Map;
+
 
 final public class JSON {
 	private static final Gson gson = new Gson();

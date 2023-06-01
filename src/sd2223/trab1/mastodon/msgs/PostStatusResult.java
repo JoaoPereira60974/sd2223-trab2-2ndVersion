@@ -1,6 +1,6 @@
 package sd2223.trab1.mastodon.msgs;
 
-import aula9.api.java.Message;
+import sd2223.trab1.api.Message;
 
 public record PostStatusResult(String id, String content, String created_at, MastodonAccount account) {
 	

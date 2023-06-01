@@ -1,24 +1,27 @@
 package sd2223.trab1.mastodon;
 
-import aula9.api.java.Feeds;
-import aula9.api.java.Message;
-import aula9.api.java.Result;
-import aula9.mastodon.msgs.PostStatusArgs;
-import aula9.mastodon.msgs.PostStatusResult;
+import static sd2223.trab1.api.java.Result.ErrorCode.*;
+import static sd2223.trab1.api.java.Result.error;
+import static sd2223.trab1.api.java.Result.ok;
+
+import java.util.List;
+
+import com.google.gson.reflect.TypeToken;
+
+import sd2223.trab1.api.java.Feeds;
+import sd2223.trab1.api.Message;
+import sd2223.trab1.api.java.Result;
+import sd2223.trab1.mastodon.msgs.PostStatusArgs;
+import sd2223.trab1.mastodon.msgs.PostStatusResult;
+
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
-import com.google.gson.reflect.TypeToken;
+
 import utils.JSON;
-
-import java.util.List;
-
-import static aula9.api.java.Result.ErrorCode.*;
-import static aula9.api.java.Result.error;
-import static aula9.api.java.Result.ok;
 
 public class Mastodon implements Feeds {
 	
@@ -72,10 +75,10 @@ public class Mastodon implements Feeds {
 		try {
 			final OAuthRequest request = new OAuthRequest(Verb.POST, getEndpoint(STATUSES_PATH));
 
-			JSON.toMap( new PostStatusArgs(msg.getText())).forEach( (k, v) -> {
+			JSON.toMap(new PostStatusArgs(msg.getText())).forEach((k, v) -> {
 				request.addBodyParameter(k, v.toString());
 			});
-			
+
 			service.signRequest(accessToken, request);
 
 			Response response = service.execute(request);
@@ -107,7 +110,7 @@ public class Mastodon implements Feeds {
 		} catch (Exception x) {
 			x.printStackTrace();
 		}
-		return error(Result.ErrorCode.INTERNAL_ERROR);
+		return error(INTERNAL_ERROR);
 	}
 
 	
@@ -133,6 +136,11 @@ public class Mastodon implements Feeds {
 
 	@Override
 	public Result<List<String>> listSubs(String user) {
+		return error(NOT_IMPLEMENTED);
+	}
+
+	@Override
+	public Result<Void> deleteUserFeed(String user) {
 		return error(NOT_IMPLEMENTED);
 	}
 }
