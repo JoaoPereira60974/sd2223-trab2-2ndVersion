@@ -2,7 +2,7 @@ package sd2223.trab1.servers.rest;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import sd2223.trab1.api.java.Feeds;
-import sd2223.trab1.mastodon.Mastodon;
+import sd2223.trab1.mastodon.MastodonResource;
 import sd2223.trab1.servers.Domain;
 import utils.Args;
 
@@ -19,7 +19,7 @@ public class ProxyFeedsServer extends AbstractRestServer {
     }
     @Override
     void registerResources(ResourceConfig config) {
-        config.register( Mastodon.class );
+        config.register( MastodonResource.class );
     }
 
     public static void main(String[] args) throws Exception {

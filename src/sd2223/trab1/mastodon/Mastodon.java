@@ -9,7 +9,7 @@ import java.util.List;
 import com.google.gson.reflect.TypeToken;
 
 import sd2223.trab1.api.Message;
-import sd2223.trab1.api.java.FeedsPull;
+import sd2223.trab1.api.java.Feeds;
 import sd2223.trab1.api.java.Result;
 import sd2223.trab1.mastodon.msgs.PostStatusArgs;
 import sd2223.trab1.mastodon.msgs.PostStatusResult;
@@ -21,9 +21,10 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
+import sd2223.trab1.servers.Domain;
 import utils.JSON;
 
-public class Mastodon implements FeedsPull {
+public class Mastodon implements Feeds {
 	
 	static String MASTODON_NOVA_SERVER_URI = "http://10.170.138.52:3000";
 	static String MASTODON_SOCIAL_SERVER_URI = "https://mastodon.social";
@@ -35,6 +36,7 @@ public class Mastodon implements FeedsPull {
 	private static final String accessTokenStr = "XoKPmP_GvmG3VWwv_49COFC-XY6h4rkW4U30HRm2Y2M";
 
 	static final String STATUSES_PATH= "/api/v1/statuses";
+	static final String STATUS_PATH = "/api/v1/statuses/:id";
 	static final String TIMELINES_PATH = "/api/v1/timelines/home";
 	static final String ACCOUNT_FOLLOWING_PATH = "/api/v1/accounts/%s/following";
 	static final String VERIFY_CREDENTIALS_PATH = "/api/v1/accounts/verify_credentials";
@@ -76,6 +78,7 @@ public class Mastodon implements FeedsPull {
 			final OAuthRequest request = new OAuthRequest(Verb.POST, getEndpoint(STATUSES_PATH));
 
 			JSON.toMap(new PostStatusArgs(msg.getText())).forEach((k, v) -> {
+				System.out.println("key: "+k+" , value: "+v);
 				request.addBodyParameter(k, v.toString());
 			});
 
@@ -104,8 +107,7 @@ public class Mastodon implements FeedsPull {
 			if (response.getCode() == HTTP_OK) {
 				List<PostStatusResult> res = JSON.decode(response.getBody(), new TypeToken<List<PostStatusResult>>() {
 				});
-
-				return ok(res.stream().map(PostStatusResult::toMessage).toList());
+				return ok(res.stream().map(result -> result.toMessage(Domain.get())).toList());
 			}
 		} catch (Exception x) {
 			x.printStackTrace();
@@ -121,7 +123,23 @@ public class Mastodon implements FeedsPull {
 
 	@Override
 	public Result<Message> getMessage(String user, long mid) {
-		return error(NOT_IMPLEMENTED);
+		try{
+
+			String url = getEndpoint(STATUS_PATH).replace(":id",Long.toString(mid));
+			final OAuthRequest request = new OAuthRequest(Verb.GET, url);
+
+			service.signRequest(accessToken, request);
+
+			Response response = service.execute(request);
+
+			if(response.getCode() == HTTP_OK) {
+				var res = JSON.decode(response.getBody(), PostStatusResult.class);
+				return ok(res.toMessage(Domain.get()));
+			}
+		}catch(Exception x){
+			x.printStackTrace();
+		}
+		return error(INTERNAL_ERROR);
 	}
 
 	@Override
@@ -144,8 +162,4 @@ public class Mastodon implements FeedsPull {
 		return error(NOT_IMPLEMENTED);
 	}
 
-	@Override
-	public Result<List<Message>> pull_getTimeFilteredPersonalFeed(String user, long time) {
-		return null;
-	}
 }

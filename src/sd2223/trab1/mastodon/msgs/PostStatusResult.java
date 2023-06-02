@@ -16,8 +16,8 @@ public record PostStatusResult(String id, String content, String created_at, Mas
 		return content;
 	}
 	
-	public Message toMessage() {
-		var m = new Message( getId(), "todo", "todo", getText());
+	public Message toMessage(String domain) {
+		var m = new Message( getId(), account.username(), domain, getText());
 		m.setCreationTime( getCreationTime() );
 		return m;
 	}
