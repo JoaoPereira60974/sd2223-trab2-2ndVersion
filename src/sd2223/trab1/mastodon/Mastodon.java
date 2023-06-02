@@ -96,7 +96,6 @@ public class Mastodon implements Feeds {
 
 	@Override
 	public Result<List<Message>> getMessages(String user, long time) {
-		System.out.println("Entrei no getMessages");
 		try {
 			final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(TIMELINES_PATH));
 
@@ -125,9 +124,7 @@ public class Mastodon implements Feeds {
 
 	@Override
 	public Result<Message> getMessage(String user, long mid) {
-		System.out.println("Cheguei ao getMessage individual");
 		try{
-
 			String url = getEndpoint(STATUS_PATH).replace(":id",Long.toString(mid));
 			final OAuthRequest request = new OAuthRequest(Verb.GET, url);
 
