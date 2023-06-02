@@ -96,8 +96,11 @@ public class Mastodon implements Feeds {
 
 	@Override
 	public Result<List<Message>> getMessages(String user, long time) {
+		System.out.println("Entrei no getMessages");
 		try {
 			final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(TIMELINES_PATH));
+
+			request.addQuerystringParameter("max_id",Long.toString(time));
 
 			service.signRequest(accessToken, request);
 
@@ -122,6 +125,7 @@ public class Mastodon implements Feeds {
 
 	@Override
 	public Result<Message> getMessage(String user, long mid) {
+		System.out.println("Cheguei ao getMessage individual");
 		try{
 
 			String url = getEndpoint(STATUS_PATH).replace(":id",Long.toString(mid));
@@ -133,7 +137,7 @@ public class Mastodon implements Feeds {
 
 			if(response.getCode() == HTTP_OK) {
 				var res = JSON.decode(response.getBody(), PostStatusResult.class);
-				return ok(res.toMessage(Domain.get()));
+				return ok(res.toCleanMessage(Domain.get()));
 			}
 		}catch(Exception x){
 			x.printStackTrace();
