@@ -4,6 +4,7 @@ import static sd2223.trab1.api.java.Result.ErrorCode.*;
 import static sd2223.trab1.api.java.Result.error;
 import static sd2223.trab1.api.java.Result.ok;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
@@ -98,9 +99,6 @@ public class Mastodon implements Feeds {
 	public Result<List<Message>> getMessages(String user, long time) {
 		try {
 			final OAuthRequest request = new OAuthRequest(Verb.GET, getEndpoint(TIMELINES_PATH));
-
-			request.addQuerystringParameter("max_id",Long.toString(time));
-
 			service.signRequest(accessToken, request);
 
 			Response response = service.execute(request);
@@ -108,7 +106,7 @@ public class Mastodon implements Feeds {
 			if (response.getCode() == HTTP_OK) {
 				List<PostStatusResult> res = JSON.decode(response.getBody(), new TypeToken<List<PostStatusResult>>() {
 				});
-				return ok(res.stream().map(result -> result.toCleanMessage(Domain.get())).toList());
+				return ok(filterMessages(res.stream().map(result -> result.toCleanMessage(Domain.get())).toList(), time));
 			}
 		} catch (Exception x) {
 			x.printStackTrace();
@@ -116,7 +114,20 @@ public class Mastodon implements Feeds {
 		return error(INTERNAL_ERROR);
 	}
 
-	
+	private List<Message> filterMessages(List<Message> toList, long time) {
+		List<Message> filteredMessages = new ArrayList<>();
+		for(Message m : toList){
+			System.out.println(m.getCreationTime()+ "vai ser filtrada");
+			if(m.getCreationTime() > time){
+				filteredMessages.add(m);
+				System.out.println(m.getCreationTime()+ "foi filtradrieds");
+			}
+		}
+		return filteredMessages;
+
+	}
+
+
 	@Override
 	public Result<Void> removeFromPersonalFeed(String user, long mid, String pwd) {
 		return error(NOT_IMPLEMENTED);

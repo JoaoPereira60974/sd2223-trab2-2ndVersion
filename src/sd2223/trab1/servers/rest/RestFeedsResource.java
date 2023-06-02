@@ -34,16 +34,7 @@ public abstract class RestFeedsResource<T extends Feeds> extends RestResource im
 	
 	@Override
 	public List<Message> getMessages(String user, long time) {
-		List<Message> lm = super.fromJavaResult( impl.getMessages(user, time));
-		List<Message> filteredMessages = new ArrayList<>();
-		for(Message m : lm){
-			System.out.println(m.getCreationTime()+ "vai ser filtrada");
-			if(m.getCreationTime() > time){
-			filteredMessages.add(m);
-			System.out.println(m.getCreationTime()+ "foi filtradrieds");
-			}
-		}
-		return filteredMessages;
+		return super.fromJavaResult( impl.getMessages(user, time));
 	}
 	@Override
 	public void subUser(String user, String userSub, String pwd) {
