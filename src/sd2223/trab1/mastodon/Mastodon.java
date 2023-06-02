@@ -78,7 +78,6 @@ public class Mastodon implements Feeds {
 			final OAuthRequest request = new OAuthRequest(Verb.POST, getEndpoint(STATUSES_PATH));
 
 			JSON.toMap(new PostStatusArgs(msg.getText())).forEach((k, v) -> {
-				System.out.println("key: "+k+" , value: "+v);
 				request.addBodyParameter(k, v.toString());
 			});
 
@@ -107,7 +106,7 @@ public class Mastodon implements Feeds {
 			if (response.getCode() == HTTP_OK) {
 				List<PostStatusResult> res = JSON.decode(response.getBody(), new TypeToken<List<PostStatusResult>>() {
 				});
-				return ok(res.stream().map(result -> result.toMessage(Domain.get())).toList());
+				return ok(res.stream().map(result -> result.toCleanMessage(Domain.get())).toList());
 			}
 		} catch (Exception x) {
 			x.printStackTrace();

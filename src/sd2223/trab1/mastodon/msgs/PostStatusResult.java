@@ -21,4 +21,14 @@ public record PostStatusResult(String id, String content, String created_at, Mas
 		m.setCreationTime( getCreationTime() );
 		return m;
 	}
+
+	public Message toCleanMessage(String domain) {
+		var m = new Message( getId(), account.username(), domain, this.clean(getText()));
+		m.setCreationTime( getCreationTime() );
+		return m;
+	}
+
+	private String clean(String text) {
+		return text.replaceAll("<p>|</p>", "");
+	}
 }
