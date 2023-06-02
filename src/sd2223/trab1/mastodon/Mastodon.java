@@ -8,8 +8,8 @@ import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
 
-import sd2223.trab1.api.java.Feeds;
 import sd2223.trab1.api.Message;
+import sd2223.trab1.api.java.FeedsPull;
 import sd2223.trab1.api.java.Result;
 import sd2223.trab1.mastodon.msgs.PostStatusArgs;
 import sd2223.trab1.mastodon.msgs.PostStatusResult;
@@ -23,7 +23,7 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 
 import utils.JSON;
 
-public class Mastodon implements Feeds {
+public class Mastodon implements FeedsPull {
 	
 	static String MASTODON_NOVA_SERVER_URI = "http://10.170.138.52:3000";
 	static String MASTODON_SOCIAL_SERVER_URI = "https://mastodon.social";
@@ -142,5 +142,10 @@ public class Mastodon implements Feeds {
 	@Override
 	public Result<Void> deleteUserFeed(String user) {
 		return error(NOT_IMPLEMENTED);
+	}
+
+	@Override
+	public Result<List<Message>> pull_getTimeFilteredPersonalFeed(String user, long time) {
+		return null;
 	}
 }
