@@ -48,7 +48,7 @@ public class Mastodon implements Feeds {
 	static final String ACCOUNT_LOOKUP_PATH = "/api/v1/accounts/lookup";
 	
 	private static final int HTTP_OK = 200;
-
+	private static final int HTTP_NOT_FOUND = 404;
 	protected OAuth20Service service;
 	protected OAuth2AccessToken accessToken;
 
@@ -119,10 +119,8 @@ public class Mastodon implements Feeds {
 	private List<Message> filterMessages(List<Message> toList, long time) {
 		List<Message> filteredMessages = new ArrayList<>();
 		for(Message m : toList){
-			System.out.println(m.getCreationTime()+ "vai ser filtrada");
 			if(m.getCreationTime() > time){
 				filteredMessages.add(m);
-				System.out.println(m.getCreationTime()+ "foi filtradrieds");
 			}
 		}
 		return filteredMessages;
@@ -142,7 +140,8 @@ public class Mastodon implements Feeds {
 
 			if(response.getCode() == HTTP_OK) {
 				return ok();
-			}
+			}else if(response.getCode() == HTTP_NOT_FOUND)
+				return error(NOT_FOUND);
 		}catch(Exception x){
 			x.printStackTrace();
 		}
@@ -163,6 +162,9 @@ public class Mastodon implements Feeds {
 			if(response.getCode() == HTTP_OK) {
 				var res = JSON.decode(response.getBody(), PostStatusResult.class);
 				return ok(res.toCleanMessage(Domain.get()));
+			}
+			else if(response.getCode() == HTTP_NOT_FOUND){
+				return error(NOT_FOUND);
 			}
 		}catch(Exception x){
 			x.printStackTrace();
