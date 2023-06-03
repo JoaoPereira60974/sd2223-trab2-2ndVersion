@@ -42,8 +42,8 @@ public class Mastodon implements Feeds {
 	static final String ACCOUNT_FOLLOWING_PATH = "/api/v1/accounts/%s/following";
 	static final String VERIFY_CREDENTIALS_PATH = "/api/v1/accounts/verify_credentials";
 	static final String SEARCH_ACCOUNTS_PATH = "/api/v1/accounts/search";
-	static final String ACCOUNT_FOLLOW_PATH = "/api/v1/accounts/%s/follow";
-	static final String ACCOUNT_UNFOLLOW_PATH = "/api/v1/accounts/%s/unfollow";
+	static final String ACCOUNT_FOLLOW_PATH = "/api/v1/accounts/:id/follow";
+	static final String ACCOUNT_UNFOLLOW_PATH = "/api/v1/accounts/:id/unfollow";
 	
 	private static final int HTTP_OK = 200;
 
@@ -130,8 +130,23 @@ public class Mastodon implements Feeds {
 
 	@Override
 	public Result<Void> removeFromPersonalFeed(String user, long mid, String pwd) {
-		return error(NOT_IMPLEMENTED);
+		try{
+			String url = getEndpoint(STATUS_PATH).replace(":id",Long.toString(mid));
+			final OAuthRequest request = new OAuthRequest(Verb.DELETE, url);
+
+			service.signRequest(accessToken, request);
+
+			Response response = service.execute(request);
+
+			if(response.getCode() == HTTP_OK) {
+				return ok();
+			}
+		}catch(Exception x){
+			x.printStackTrace();
+		}
+		return error(INTERNAL_ERROR);
 	}
+
 
 	@Override
 	public Result<Message> getMessage(String user, long mid) {
@@ -155,7 +170,24 @@ public class Mastodon implements Feeds {
 
 	@Override
 	public Result<Void> subUser(String user, String userSub, String pwd) {
-		return error(NOT_IMPLEMENTED);
+		try{
+			String url = getEndpoint(ACCOUNT_FOLLOW_PATH).replace(":id",Long.toString(mid));
+			String [] parts = user.split("@");
+			String userName = parts[0];
+			final OAuthRequest request = new OAuthRequest(Verb.GET, url);
+
+			service.signRequest(accessToken, request);
+
+			Response response = service.execute(request);
+
+			if(response.getCode() == HTTP_OK) {
+				var res = JSON.decode(response.getBody(), PostStatusResult.class);
+				return ok(res.toCleanMessage(Domain.get()));
+			}
+		}catch(Exception x){
+			x.printStackTrace();
+		}
+		return error(INTERNAL_ERROR);
 	}
 
 	@Override
