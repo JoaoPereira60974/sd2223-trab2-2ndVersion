@@ -12,6 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import sd2223.trab1.api.Message;
 import sd2223.trab1.api.java.Feeds;
 import sd2223.trab1.api.java.Result;
+import sd2223.trab1.mastodon.msgs.MastodonAccount;
 import sd2223.trab1.mastodon.msgs.PostStatusArgs;
 import sd2223.trab1.mastodon.msgs.PostStatusResult;
 
@@ -44,6 +45,7 @@ public class Mastodon implements Feeds {
 	static final String SEARCH_ACCOUNTS_PATH = "/api/v1/accounts/search";
 	static final String ACCOUNT_FOLLOW_PATH = "/api/v1/accounts/:id/follow";
 	static final String ACCOUNT_UNFOLLOW_PATH = "/api/v1/accounts/:id/unfollow";
+	static final String ACCOUNT_LOOKUP_PATH = "/api/v1/accounts/lookup";
 	
 	private static final int HTTP_OK = 200;
 
@@ -171,18 +173,36 @@ public class Mastodon implements Feeds {
 	@Override
 	public Result<Void> subUser(String user, String userSub, String pwd) {
 		try{
-			String url = getEndpoint(ACCOUNT_FOLLOW_PATH).replace(":id",Long.toString(mid));
-			String [] parts = user.split("@");
-			String userName = parts[0];
+			String url = getEndpoint(ACCOUNT_LOOKUP_PATH);
+			String [] parts = userSub.split("@");
+			String displayName = parts[0];
 			final OAuthRequest request = new OAuthRequest(Verb.GET, url);
+			request.addQuerystringParameter("acct", displayName);
 
 			service.signRequest(accessToken, request);
 
 			Response response = service.execute(request);
-
+			String userId;
 			if(response.getCode() == HTTP_OK) {
-				var res = JSON.decode(response.getBody(), PostStatusResult.class);
-				return ok(res.toCleanMessage(Domain.get()));
+				var res = JSON.decode(response.getBody(), MastodonAccount.class);
+				userId = res.id();
+				return actualSub(userId);
+			}
+		}catch(Exception x){
+			x.printStackTrace();
+		}
+		return error(INTERNAL_ERROR);
+	}
+
+	public Result<Void> actualSub(String id) {
+		try{
+			String url = getEndpoint(ACCOUNT_FOLLOW_PATH).replaceAll(":id", id);
+			final OAuthRequest request = new OAuthRequest(Verb.POST, url);
+
+			service.signRequest(accessToken, request);
+			Response response = service.execute(request);
+			if(response.getCode() == HTTP_OK) {
+				return ok();
 			}
 		}catch(Exception x){
 			x.printStackTrace();
@@ -192,7 +212,43 @@ public class Mastodon implements Feeds {
 
 	@Override
 	public Result<Void> unsubscribeUser(String user, String userSub, String pwd) {
+		try{
+			String url = getEndpoint(ACCOUNT_LOOKUP_PATH);
+			String [] parts = userSub.split("@");
+			String displayName = parts[0];
+			final OAuthRequest request = new OAuthRequest(Verb.GET, url);
+			request.addQuerystringParameter("acct", displayName);
+
+			service.signRequest(accessToken, request);
+
+			Response response = service.execute(request);
+			String userId;
+			if(response.getCode() == HTTP_OK) {
+				var res = JSON.decode(response.getBody(), MastodonAccount.class);
+				userId = res.id();
+				return actualRemove(userId);
+			}
+		}catch(Exception x){
+			x.printStackTrace();
+		}
+
 		return error(NOT_IMPLEMENTED);
+	}
+
+	public Result<Void> actualRemove(String id) {
+		try{
+			String url = getEndpoint(ACCOUNT_UNFOLLOW_PATH).replaceAll(":id", id);
+			final OAuthRequest request = new OAuthRequest(Verb.POST, url);
+
+			service.signRequest(accessToken, request);
+			Response response = service.execute(request);
+			if(response.getCode() == HTTP_OK) {
+				return ok();
+			}
+		}catch(Exception x){
+			x.printStackTrace();
+		}
+		return error(INTERNAL_ERROR);
 	}
 
 	@Override
